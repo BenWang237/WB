@@ -1,0 +1,1485 @@
+﻿@model Weighbridge0226.Models.TB
+
+
+
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   
+
+    <title>地磅系統</title>
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="~/Scripts/html5shiv.min.js"></script>
+      <script src="~/Scripts/respond.min.js"></script>
+    <![endif]-->
+    
+    <link rel="stylesheet" type="text/css" href="~/content/jquery-easyui-1.4.4/themes/gray/easyui.css">
+    <link rel="stylesheet" type="text/css" href="~/content/jquery-easyui-1.4.4/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="~/content/jquery-easyui-1.4.4/demo/demo.css">
+    <link rel="stylesheet" type="text/css" href="~/content/jquery.simple-dtpicker.css" /> 
+               
+    <script type="text/javascript" href="~/content/jquery-easyui-1.4.4/plugins/jquery.datetimebox.js"></script>       
+    <script type="text/javascript" src="~/Scripts/LoadingUI.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="~/content/script/jquery.simple-dtpicker.js"></script>      
+    <script type="text/javascript" src="~/content/jquery-easyui-1.4.4/jquery.easyui.min.js"></script>
+    <script src="~/content/jquery-easyui-1.4.4/locale/easyui-lang-zh_TW.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery.signalR-2.2.0.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <style type="text/css">
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+    </style>
+   <style>
+       *{
+	      font-size:24px;
+          font-family:'Microsoft JhengHei';          
+        }
+        .datagrid-cell
+        {
+         font-size:16px;
+        }
+        .l-btn-text 
+        {
+          display: inline-block;
+          vertical-align: top;
+          width: auto;
+          line-height: 24px;
+          font-size: 18px;
+          padding: 0;
+          margin: 0 4px;
+        }
+        
+        input[type=radio] 
+        {
+       -webkit-transform: scale(1.75, 1.75);
+        }
+
+              
+   </style>    
+</head>
+
+<body >           
+    <div class="easyui-panel" title="地磅" style="width:100%;height:100%; padding:10px">
+        <form id="ff"name="ff" method="post" enctype="multipart/form-data">
+            <table style="width:1200px" border="0">
+                <tr>
+                    <td>
+                        <table style="width:800px;height:200px" border="0">
+                            <tr>                              
+                                <td width="120px">管制卡號:</td>
+                                <td width="70px"><input name="VAM_NO" id="VAM_NO" style="height:35px;width:200px;font-size:20px" class="easyui-textbox" translate="yes" type="number"/></td>
+                                <td width="200px"align="right"><div style="font-size:20px;color:red">磅秤:</div></td>
+                                <td width="200px" align="right"><div style="font-size:20px;">廠內車數量:</div></td>                                                         
+                            </tr>
+                            <tr>
+                                <td>車號:</td>
+                                <td ><input name="CAR_NO" id="CAR_NO" class="easyui-textbox" style="height:35px;width:200px" /></td>
+                                <td rowspan="2" align="right"><text id="show1" class="text-center" style="font-size:30px; text-align:left;font-style:oblique;color:red" /></td>
+                                <td rowspan="2" align="right"><text id="car_number" style="font-size:30px "></text></td>
+                            </tr>
+
+                            <tr>
+                                <td>地磅選項:</td>
+                                <td>
+                                    <input type="radio" name="auto" value=0 checked>自動輸入<br>
+                                    <input type="radio" name="auto" value=9>手動輸入
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>廠區:</td>
+                                <td><text id="Pier" style="font-size:30px;color:blue"></text></td>
+                            </tr>
+                        </table>
+
+                    </td>
+                    <td rowspan="2"> 
+                        <table id="dg" class="easyui-datagrid" style="width:450px;height:500px;" toolbar="#toolbar" align="center">
+                           
+                        </table>
+                    </td>
+                </tr>
+                <div id="toolbar">                   
+                    <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-remove" plain="true" onclick="destroyCar()">刪除</a>                    
+                </div>
+
+                <tr>
+                    <td>
+                        <table border="0" style=" width:850px ">
+
+                            <tr>
+                                <td>作業方式:</td>
+                                <td>
+                                    <select class="easyui-combobox" name="TB_TYPE" id="TB_TYPE" style="width:200px;height:35px"><option value="1">出庫</option><option value="2">入庫</option><option value="3">特殊庫</option></select>
+                                </td>
+                                <td>倉庫槽號:</td>
+
+                                <td>
+                                    <input class="easyui-combobox" name="TANK_NUM" id="TANK_NUM" style="width:200px;height:35px" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>客戶簡碼:</td>
+                                <td>
+                                    <input name="CUST_ID" id="CUST_ID" class="easyui-combobox" style="width:200px;height:35px " />
+                                </td>
+                                <td>品名簡碼:</td>
+                                <td><input name="PROD_ID" id="PROD_ID" class="easyui-combobox" style="width:200px;height:35px" /></td>
+
+
+
+                            </tr>
+                            <tr>
+                                <td>客戶名稱:</td>
+                                <td><input name="CUST_NAME" id="CUST_NAME" readonly class="f1 easyui-textbox" style="width:200px;height:35px" /></td>
+                                <td>產品名稱:</td>
+                                <td><input name="PROD_NAME" id="PROD_NAME" readonly class="f1 easyui-textbox" style="width:200px;height:35px" /></td>
+
+                            </tr>
+                            <tr>
+                                <td>運輸公司:</td>
+                                <td><input id="PRN_TIMES" name="PRN_TIMES" class="f1 easyui-textbox" style="width:200px;height:35px" /></td>
+                                <td>司機:</td>
+                                <td><input id="APPROVER" name="APPROVER" class="f1 easyui-textbox" style="width:200px;height:35px" /></td>
+
+                            </tr>
+                            <tr>
+                                <td>第一次磅時間:</td>                                
+                                <td><input type="text" id="IN_DATE" name="IN_DATE" disabled="disabled"  style="width:210px;height:35px" /></td>
+                                <td>第二次磅時間:</td>
+                                <td><input type="text" id="OUT_DATE" name="OUT_DATE" disabled="disabled" style="width:210px;height:35px" /></td>
+
+                            </tr>
+                            <tr>
+                                <td>第一次磅重:</td>
+                                <td><input id="IN_WEIGHT" name="IN_WEIGHT" readonly="readonly" class="f1 easyui-textbox" style="width:200px;height:35px" /></td>
+                                <td>第二次磅重:</td>
+                                <td><input name="OUT_WEIGHT" id="OUT_WEIGHT" class="f1 easyui-textbox" readonly="readonly" style="width:200px;height:35px" onchange="CalWeight()" /></td>
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    淨重:
+
+                                </td>
+                                <td><input name="NET_WEIGHT" id="NET_WEIGHT" readonly="readonly" class="f1 easyui-textbox" style="width:200px;height:35px" /></td>
+                                <td>
+                                    今日完成車次
+
+                                </td>
+                                <td><a id="CompButton" href="javascript:void(0)" onclick="complete()" class=" easyui-linkbutton" size="large" data-options="iconCls:'icon-search'">今日完成車輛</a></td>
+
+                            </tr>
+
+
+                        </table>
+                    </td>
+                </tr>
+            </table>
+                <input class="easyui-textbox" style="display:none" id="IN_TB_ID" name="IN_TB_ID">                
+                <input class="easyui-textbox" style="display:none" id="OUT_TB_ID" name="OUT_TB_ID">
+                <input class="easyui-textbox" style="display:none" id="DIVISION" name="DIVISION">
+                <input class="easyui-textbox" style="display:none" id="UKEY_edit" name="UKEY_edit">
+                <input class="easyui-textbox" style="display:none" id="OTH_WT" name="OTH_WT">
+                <input class="easyui-textbox" style="display:none" id="USER1" name="USER1">
+                <input class="easyui-textbox" style="display:none" id="USER2" name="USER2">
+                <input class="easyui-textbox" style="display:none" id="CAB_NO" name="CAB_NO">                
+           
+            <a id="button1" size="large" href="javascript:void(0)" class=" easyui-linkbutton" data-options="iconCls:'icon-save'" onclick=formSubmitCreate();>存檔 </a>
+            <a id="button2" size="large" style=" display:none" href="javascript:void(0)" class=" easyui-linkbutton" data-options="iconCls:'icon-save'" onclick=formSubmitEdit();>存檔</a>
+            <a id="button3" size="large" href="javascript:void(0)" class=" easyui-linkbutton" data-options="iconCls:'icon-search'" onclick=setup();>檢查選項設定</a>
+          @*<a id="button4" size="large" href="javascript:void(0)" class=" easyui-linkbutton" data-options="iconCls:'icon-print'">列印測試 </a>*@
+            <a id="btnPrintI" size="large" href="javascript:void(0)" class=" easyui-linkbutton" data-options="iconCls:'icon-print'">進廠磅單列印</a>
+            <a id="btnPrintO" size="large" href="javascript:void(0)" class=" easyui-linkbutton" data-options="iconCls:'icon-print'">出廠證明單列印</a>           
+            <table border="0">
+                <tr>
+                    <td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</td>
+                    <td><text id="education_show_text" style="font-size:14px"> 管制司機教育訓練</text></td>
+                    <td><input id="education_show" style="zoom:150%" type="checkbox" value="0" disabled="disabled" /></td>
+                </tr>
+
+                <tr>
+                    <td>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</td>
+                    <td><text id="health_show_text" style="font-size:14px"> 管制司機健康檢查</text></td>
+                    <td><input id="health_show" style="zoom:150%" type="checkbox" value="0" disabled="disabled" /> </td>
+                </tr>
+            </table>
+</form>
+       
+
+        <br />
+
+        <video id="correct" hidden="hidden" src="~/content/Audio/Inok-入廠刷卡正確.mp3"></video>
+        <video id="ncarno" hidden="hidden" src="~/content/Audio/ncarno-無此卡號再試一次.mp3"></video>
+        <video id="error" hidden="hidden" src="~/content/Audio/error-錯誤請通知工作人員.mp3"></video>
+        <video id="push" hidden="hidden" src="~/content/Audio/catch-磅秤抓到請按確認.mp3"></video>
+        <video id="correct_out" hidden="hidden" src="~/content/Audio/Outok2-出廠刷卡正確請拿單.mp3"></video>
+        <video id="out_training" hidden="hidden" src="~/content/Audio/SA01-訓練有效期限已過.mp3"></video>
+        <video id="no_training" hidden="hidden" src="~/content/Audio/SA02-沒有訓練資料.mp3"></video>
+        <video id="get_start" hidden="hidden" src="~/content/Audio/START0-啟動自動過磅程式.mp3"></video>
+        <video id="0" hidden="hidden" src="~/content/Audio/0.mp3"></video>
+        <video id="1" hidden="hidden" src="~/content/Audio/1.mp3"></video>
+        <video id="2" hidden="hidden" src="~/content/Audio/2.mp3"></video>
+        <video id="3" hidden="hidden" src="~/content/Audio/3.mp3"></video>
+        <video id="4" hidden="hidden" src="~/content/Audio/4.mp3"></video>
+        <video id="5" hidden="hidden" src="~/content/Audio/5.mp3"></video>
+        <video id="6" hidden="hidden" src="~/content/Audio/6.mp3"></video>
+        <video id="7" hidden="hidden" src="~/content/Audio/7.mp3"></video>
+        <video id="8" hidden="hidden" src="~/content/Audio/8.mp3"></video>
+        <video id="9" hidden="hidden" src="~/content/Audio/9.mp3"></video>
+
+
+        <br><br>  
+        
+        <div id="dlg" class="easyui-dialog" style="width:100%;height:850px;padding:10px 20px ;display:none"
+             closed="true" buttons="#dlg-buttons" data-options="iconCls:'icon-save',resizable:true,modal:true" toolbar="#toolbar2">
+            <div class="ftitle"></div>
+            <table id="dg2"></table>
+            <div id="toolbar2">
+                @*<a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="PrintI()">進廠磅單列印</a>*@
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-print" plain="true" onclick="PrintO()">出廠證明單列印</a>
+            </div>
+        </div>
+    </div>
+    <div id="Setupdlg" class="easyui-dialog" title="My Dialog" style="width:600px;height:450px;display:none;" closed="true"
+         data-options="iconCls:'icon-save',resizable:true,modal:true" buttons="#Setupdlg-buttons">
+        <br />
+        <table>
+            <tr>
+                <td><div style="font-size:18px">總重限制:</div></td>
+                <td><input id="UpWeight" style="width:200px;height:35px;font-size:18px" class="easyui-textbox" /></td>
+            </tr>
+            <tr>
+                <td><div style="font-size:18px">載重下限:</div></td>
+                <td><input id="DownWeight" style="width:200px;height:35px;font-size:18px" class="easyui-textbox" /></td>
+            </tr>
+            <tr>
+                <td><text style="font-size:18px">音效選擇</text></td>
+                <td> <input id="audio" style="zoom:150%" type="checkbox" checked="checked" value="0" /></td>                
+            </tr>
+
+            <tr>
+                <td><text style="font-size:18px"> 管制司機教育訓練</text></td>
+                <td><input id="education" style="zoom:150%" type="checkbox" value="0" /></td>
+            </tr>
+
+            <tr>
+                <td><text style="font-size:18px"> 管制司機健康檢查</text></td>
+                <td><input id="health" style="zoom:150%" type="checkbox" value="0" /> </td>
+            </tr>
+            <tr>
+                <td><text style="font-size:18px"> 管制車輛趟次檢查</text></td>
+                <td><input id="carTimes" style="zoom:150%" type="checkbox" value="0" /> </td>
+            </tr>
+            <tr>
+                <td><text style="font-size:18px">自動列印</text></td>
+                <td> <input id="printer" style="zoom:150%" type="checkbox" checked="checked" value="0" /></td>
+            </tr>
+        </table>
+        <div id="Setupdlg-buttons">
+            <a href="javascript:void(0)" class="easyui-linkbutton c6" iconcls="icon-ok" onclick="Setupdlgsave()" style="width:90px">存檔</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-cancel" onclick="javascript: $('#Setupdlg').dialog('close')" style="width:90px">取消</a>
+        </div>
+
+
+        <div id="Deletedlg" class="easyui-dialog" style="width:500px;height:300px;padding:10px 20px;display:none "
+             closed="true" buttons="#dlg-buttons-del">
+            <form id="DeleteForm" method="post">
+                <table>
+                    <tr>
+                        <td>
+                            <text style="font-size:20px">刪除原因:</text>
+                        </td>
+                        <td>
+                            <input id="reason" name="reason" class="easyui-textbox" multiline="true" required="required" style="width:300px;height:70px;font-size:18px" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><text style="font-size:20px">車號:</text></td>
+                        <td><input class="easyui-textbox" style="width:200px;height:35px;font-size:18px" id="CAR_NO" name="CAR_NO" readonly="readonly"></></td>
+                    </tr>
+                    <tr>
+                        <td><text style="font-size:20px">進場時間:</text></td>
+                        <td><input class="easyui-textbox" style="width:200px;height:35px;font-size:18px" id="IN_DATE" name="IN_DATE" readonly="readonly"></></td>
+                    </tr>
+                    <tr>
+                        <td><text style="font-size:20px">編碼:</text></td>
+                        <td><input class="easyui-textbox" style="width:230px;height:35px;font-size:18px" id="UKEY" name="UKEY" readonly="readonly"></></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div id="dlg-buttons-del">
+            <a href="javascript:void(0)" class="easyui-linkbutton c6" iconcls="icon-ok" onclick="Deletesave()" style="width:150px">確定刪除</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-cancel" onclick="javascript: $('#Deletedlg').dialog('close')" style="width:90px">取消</a>
+        </div>
+        
+        
+        <div id="Auth" class="easyui-dialog" style="width:500px;height:220px;padding:10px 20px;display:none;"
+             closed="true" buttons="#Auth_Button" data-options="iconCls:'icon-save',resizable:true,modal:true">
+            <form id="AuthForm" method="post">
+                <table>
+                    <tr>
+                        <td>
+                            <text style="font-size:20px">工號:</text>
+                        </td>
+                        <td>
+                            <input id="pps_code" name="pps_code" class="easyui-textbox" required="required" style="width:200px;height:35px;font-size:18px" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><text style="font-size:20px">身份證後四碼:</text></td>
+                        <td><input class="easyui-textbox" style="width:200px;height:35px;font-size:18px" type="password" required="required" id="id_Num" name="id_Num"></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <div id="Auth_Button">
+            <a href="javascript:void(0)" class="easyui-linkbutton c6" iconcls="icon-ok" onclick="AuthSend()" style="width:90px">確定</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" iconcls="icon-cancel" onclick="javascript: $('#Auth').dialog('close')" style="width:90px">取消</a>
+        </div>
+        <div id="Select" class="easyui-dialog" style="width:300px;height:200px;padding:10px 20px;display:none;"
+             closed="true" buttons="#Auth_Button" data-options="iconCls:'icon-save',resizable:true,modal:true">
+            <input type="radio" name="location" value="56"> <text style="font-size:20px">56碼頭</text><br>
+            <br />
+            <input type="radio" name="location" value="28"> <text style="font-size:20px">28碼頭</text><br>
+        </div>
+        <div id="Auth_Button">
+            <a href="javascript:void(0)" class="easyui-linkbutton c6" iconcls="icon-ok" onclick="SelectSend()" style="width:90px">確定</a>
+        </div>
+
+    </div>
+
+    <input id="Weigh" name="Weigh"class="easyui-textbox" />
+    @*<a><input id="test1" type="button"  onclick="SetObjValue('Weigh',1000)" />1000測試</a>
+    <a><input id="test2" type="button" onclick="SetObjValue('Weigh',2000)" />2000測試</a>
+    <a><input id="test3" type="button" onclick="SetObjValue('Weigh',3000)" />3000測試</a>*@
+
+    <script type="text/javascript">
+   
+
+    var Car_No1;
+    var Car_No2;
+    var Car_No3;
+    var PPS_code;
+    var weight1;
+    var weight2;
+    var count=1;
+    var OutTime;
+    var chat;
+    var vaudioProp = false;
+    var educationProp = false;
+    var healthProp = false;
+    var carTimesProp = false;
+    var printerProp = true;
+    var habor;
+    var hour_temp;
+    var min_temp;
+    var optionValue = 0;
+    var UpWeightVal = 38500;
+    var DownWeightVal = 0;
+    var vam_no;
+    var vam_no2;
+    var UKEY;
+    var UKEY2;
+    var idle_time;
+    var vam_no_temp;
+    var weigh_url = '@Url.Action("Weigh2","Default")';
+    var flag_url = '@Url.Action("edit", "Default")';
+    var CompleteCar_url = '@Url.Action("CompleteCar", "Default")';
+        
+                                              
+        //$(function () {
+        //    // 建立與 Server 端的 Hub 的物件，注意 Hub 的開頭字母一定要為小寫
+        //     chat = $.connection.testhub;
+        //    // 建立連線後，我們接著來定義 client 端的 function 來讓 Server 端的 hub 呼叫。
+        //    chat.client.show = function (message) {
+        //        $('#Weigh').textbox('setValue', message);
+        //    }
+        //    chat.client.intime = function (test) {
+        //        getDatagrid();
+        //    }
+
+        //    // 將連線打開
+        //    $.connection.hub.start().done(function () {
+        //        // 當連線完成後，呼叫 Server 端的 hello 方法，並傳送使用者姓名給 Server
+        //        //chat.server.hello(userID);
+        //    });
+        //    $("#button4").click(function () {
+        //        // 呼叫 Server 端的 printing 方法，並傳送印表機內容給 Server
+        //        chat.server.intime1();
+        //       // chat.server.printing("Microsoft XPS Document Writer");
+        //    });
+         
+          
+        
+        //});
+      //  var chat = $.connection.testhub;//singnalR連線
+      //  $.connection.hub.start();   
+             
+        $.extend($.fn.textbox.methods, {
+            show: function (jq) {
+                return jq.each(function () {
+                    $(this).next().show();
+                })
+            },
+            hide: function (jq) {
+                return jq.each(function () {
+                    $(this).next().hide();
+                })
+            }
+        });
+        setInterval("idle_time++", 1000);//自動追標到VAM_NO
+        $(document).keydown(function (e) { idle_time = 0; });
+        $(document).mouseover(function (e) { idle_time = 0; });        
+
+        function autoFocus() {           
+            if (idle_time >= 3) {
+                if (optionValue == 0&habor=='56')
+                {
+                    if ($('#VAM_NO').val() == null || $('#VAM_NO').val()=="")
+                    {
+                        $('#VAM_NO').textbox('clear').textbox('textbox').focus();
+                        setTimeout('autoFocus()', 3000);
+                    }
+                    else
+                    setTimeout('autoFocus()', 3000);
+                }
+                else
+                setTimeout('autoFocus()', 3000);
+            }
+            else {
+                setTimeout('autoFocus()', 3000);
+            }
+        }
+        function autoUpdate() {//signalR在旅順(網路似乎不太穩定下)，不定時會產生錯誤，用此方式代替
+            if (idle_time >= 10) {
+                getDatagrid();
+                setTimeout('autoUpdate()',300000)
+            }
+            else
+            {
+                setTimeout('autoUpdate()', 10000)
+            }
+
+        }        
+       //30分鐘戳一下，希望速度不要慢，一天96次可以接受啦
+        setInterval(function () {
+            $.ajax({
+                url: weigh_url,
+                data: { VAM_NO: null },
+                method: "POST",
+            })
+        }, 900000);
+        
+
+        
+
+        $(document).ready(function () {            
+            setTimeout('autoFocus()', 10000);
+            setTimeout('autoUpdate()', 10000);
+            $('#IN_TB_ID').textbox('hide');            
+            $('#OUT_TB_ID').textbox('hide');
+            $('#DIVISION').textbox('hide');
+            $('#UKEY_edit').textbox('hide');
+            $('#USER1').textbox('hide');
+            $('#USER2').textbox('hide');
+            $('#Weigh').textbox('hide');           
+            $('#OTH_WT').textbox('hide');
+            $('#CAB_NO').textbox('hide');            
+            $('#Select').show().dialog('open').dialog('center').dialog('setTitle', '廠區選擇');
+
+        });
+        function Setfunction(title)//利用change title與delphi溝通
+        {
+            document.title = title;
+        }
+
+        function SetObjValue(cid, ovalue) {//由delphi call此javascript，傳入的數值三次都一樣才顯示利用           
+            if (habor=='56'||(ovalue == weight1&ovalue==weight2)) {
+                $('#show1').text(ovalue);
+            }
+
+            if (count == 1) {
+                weight1 = ovalue;
+                count = 2;
+            }
+            else {
+                weight2 = ovalue;
+                count = 1;
+            }
+          //  $('#' + cid).textbox('setValue', ovalue);
+        }
+
+        function formreset() {
+            $("#ff").form('reset');
+            if (optionValue == 9) { //將自動手動按鈕保留
+                $('input[name="auto"]')[1].checked = true;
+
+            }
+            else {
+                $('input[name="auto"]')[1].checked = false;
+                $('input[name="auto"]')[0].checked = true;
+            }
+            if (educationProp == true)//將提醒用checkbox保留
+            {
+                $("#education_show").prop('checked', true);
+            }
+            else
+            {
+                $("#education_show").prop('checked', false);
+            }                 
+            if (healthProp == true)
+            {
+                $("#health_show").prop('checked', true);
+            }
+            else
+            {
+                $("#health_show").prop('checked', false);
+            }
+        }
+     
+        
+        function Deletesave() {
+            $("#DeleteForm").submit(function (edit) {
+                $.ajax({
+                    type: "POST",
+                    url: 'destroy_Car',
+                    data: $("#DeleteForm").serialize(),// serializes the form's elements.
+                }).done(function (result) {
+
+                    if (result == "ok") {
+                        $.messager.show({
+                            title: 'SUCCEED',
+                            msg: "存檔成功"
+                        });
+                      //  chat.server.intime1();
+                        $('#dg').datagrid('reload');
+                        $('#DeleteForm').form('reset');
+                        $('#Deletedlg').dialog('close');
+                    }
+                    else {
+                        $.messager.alert({
+                            title: 'failed',
+                            msg: result
+                        });
+                    }
+
+                })
+                edit.preventDefault();// avoid to execute the actual submit of the form.
+            });
+            $("#DeleteForm").submit();
+            $("#DeleteForm").unbind();
+
+        }
+        function AuthSend() {
+            $("#AuthForm").submit(function (edit) {
+
+                $.ajax({
+                    type: "POST",
+                    url: 'Auth',
+                    data: $("#AuthForm").serialize(),// serializes the form's elements.
+                }).done(function (result) {
+
+
+                    if (result["result"] == "ok") {
+                        $.messager.show({
+                            title: 'SUCCEED',
+                            msg: "認證成功"
+                        });
+                        optionValue = 9;
+                        PPS_code = result["pps_code"];
+
+
+                        $('input[name="auto"]')[1].checked = true;
+                        $('input[name="auto"]')[0].checked = false;
+                        $('#IN_WEIGHT').textbox('readonly', false);
+                        $('#OUT_WEIGHT').textbox('readonly', false);
+                        $('#Auth').dialog('close');
+                        if(result["Date"]==true)
+                        {
+                            $('#IN_DATE').prop("disabled", false);                                                        
+                            $("#OUT_DATE").prop("disabled", false);
+                        }
+                        console.log(result["Date"]);
+                    }
+                    else {
+                        $.messager.alert({
+                            title: 'failed',
+                            msg: result["result"]
+                        });
+                        optionValue = 0;
+                        PPS_code = null;
+                        $('input[name="auto"]')[1].checked = false;
+                        $('input[name="auto"]')[0].checked = true;
+                        $('#IN_DATE').prop('disabled', true);
+                        $('#OUT_DATE').prop('disabled', true);
+
+                    }
+                   
+                    
+                    console.log(PPS_code);
+                    console.log(optionValue);
+                    $('#AuthForm').form('reset');
+                })
+                edit.preventDefault();// avoid to execute the actual submit of the form.
+            });
+            $("#AuthForm").submit();
+            $("#AuthForm").unbind();
+        }
+        function SelectSend() {
+           
+            habor = ($('input[name=location]:checked').val());                        
+            $('#Select').dialog('close');
+            $('#VAM_NO').textbox('clear').textbox('textbox').focus();
+            $.ajax({
+                url: 'Setup',
+                data: { habor: habor },
+                method: "POST",
+
+            }).done(function (result) {
+                
+                if(result["healthProp"]=='y')
+                {
+                    healthProp = true;
+                    $("#health").prop('checked', true);
+                    $("#health_show").prop('checked', true);
+                }
+                if (result["educationProp"] == 'y')
+                {
+                    educationProp = true;
+                    $("#education").prop('checked', true);
+                    $("#education_show").prop('checked', true);
+                }
+                if (result["carTimesProp"] == 'y')
+                {
+                    carTimesProp = true;
+                    $("#carTimes").prop('checked', true);
+                }          
+                           
+                 UpWeightVal = result["UpWeightVal"];
+                 DownWeightVal = result["DownWeightVal"];
+                $('#UpWeight').textbox('setValue', UpWeightVal);
+                $('#DownWeight').textbox('setValue', DownWeightVal);
+                $('#Pier').text(habor + '碼頭');
+                if (habor == '28')
+                {
+                    $("#education_show").hide();
+                    $("#education_show_text").hide();
+                    $("#health_show").hide();
+                    $("#health_show_text").hide();
+                }
+                getTankNum();
+                getDatagrid();
+                console.log(carTimesProp);
+                
+            });
+
+            console.log(habor);
+        }
+        $('#Select').dialog({
+            onClose: function () {
+                if (habor == null)
+                {
+                    $.messager.show({
+                        title: '廠區確認',
+                        msg: '請選擇廠區後點選確定'
+
+                    });             
+                    $('#Select').show().dialog('open').dialog('center').dialog('setTitle', '廠區選擇');
+                }
+            }
+        });
+        function destroyCar() {
+            var row = $('#dg').datagrid('getSelected');
+            if (row) {
+                $('#Deletedlg').show().dialog('open').dialog('center').dialog('setTitle', '刪除原因');
+                $('#DeleteForm').form('load', row);
+            }
+        }
+
+        function AutoFocus2() {
+            $('#VAM_NO').textbox('clear').textbox('textbox').focus();
+        }
+
+        function complete() {
+
+            $('#dlg').show().dialog('open').dialog('center').dialog('setTitle', '今日完成車次資訊');           
+        }
+        function setup() {
+            $('#Setupdlg').show().dialog('open').dialog('center').dialog('setTitle', '檢查設定');
+        }
+        function Setupdlgsave() {
+            $.ajax({
+                url: 'SetupSave',
+                data: {
+                    habor: habor, health: healthProp, education: educationProp
+                   , carTimes: carTimesProp, UpWeight: UpWeightVal, DownWeight: DownWeightVal
+                },
+                method: "POST",
+
+            }).done(function (result) {
+                if (result=='ok') {
+                    $.messager.show({
+                        title: '成功',
+                        msg: '存檔成功'
+                    });
+                    $('#Setupdlg').dialog('close');
+                } else {
+                    $.messager.show({
+                        title: '失敗',
+                        msg: result
+                    });
+                }
+
+            });
+        }
+        
+        $('#Weigh').textbox({
+            
+            onChange: function (value) {
+                            
+                    $('#show1').text(value);                              
+            }
+        });
+     
+
+        $('#VAM_NO').textbox({
+            onChange: function (value) {
+
+                 
+                 if ($('#VAM_NO').val() == '' || $('#VAM_NO').val() == null) {
+                    return (false);
+                }
+                 if (vam_no_temp == $('#VAM_NO').val()&optionValue==0)//將上一筆出廠的車號暫存抓出來比較，當自動地磅時，如果是同一卡號然後又在五分鐘內要進廠，阻擋
+                 {
+                                      
+                     var now = new Date();
+                     var RightNow = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 5);
+                     if (((Date.parse(RightNow)).valueOf() <= (Date.parse(OutTime)).valueOf())) {
+                         $('#VAM_NO').textbox('clear').textbox('textbox').focus();
+                         return false;
+                     }                                        
+
+                }
+                $.ajax({
+                    url: weigh_url,
+                    data: { VAM_NO: $('#VAM_NO').val() },
+                    method: "POST",
+
+                }).done(function (data1) {                 
+                    if (data1[0]["CAR_NO"] != null) {                  
+                        Car_No1 = parseInt(data1[0]["Car_No1"]);
+                        Car_No2 = parseInt(data1[0]["Car_No2"]);
+                        Car_No3 = parseInt(data1[0]["Car_No3"]);
+                        if (isNaN(Car_No1) == true)
+                        {
+                            Car_No1 = 0;
+                        }
+                        if (isNaN(Car_No2) == true) {
+                            Car_No2 = 0;
+                        }
+                        if (isNaN(Car_No3) == true) {
+                            Car_No2 = 0;
+                        }
+                        setTimeout("document.getElementById(Car_No1).play()", 1000);
+                        setTimeout("document.getElementById(Car_No2).play()", 1700);
+                        setTimeout("document.getElementById(Car_No3).play()", 2400);
+                    }
+
+                    if (data1[0] == null || data1[0]["CAR_NO"] == null || data1[0]["CAR_NO"] == '') {
+                        document.getElementById("ncarno").play();
+                        $.messager.show({
+                            title: '錯誤',
+                            msg: '此卡片號碼無登記紀錄'
+
+                        });
+                        formreset();                        
+                        $('#VAM_NO').textbox('clear').textbox('textbox').focus();                        
+                        return (false);
+                    }                  
+
+                    else if (carTimesProp == true & data1[0]["TB_FLAG"] != "1" & data1[0]["TripLimit"] == null)
+                    {
+                        $.messager.alert({
+                            title: 'failed',
+                            msg: "此車無登記允許趟次"
+                        });
+                        document.getElementById("error").play();
+                        $('#VAM_NO').textbox('clear').textbox('textbox').focus();
+                        return (false);
+                    }
+                    else if (carTimesProp == true & data1[0]["TB_FLAG"] != "1" & data1[0]["TripTime"] >= data1[0]["TripLimit"])
+                    {
+                       $.messager.alert({
+                         title: 'failed',
+                            msg: "此車今日趟次已達上線了,總計" + data1[0]["TripTime"] + "趟次"
+                           });
+                       document.getElementById("error").play();
+                       $('#VAM_NO').textbox('clear').textbox('textbox').focus();
+                       return (false);
+                    }
+                    else if (educationProp == true & data1[0]["TrainingDate"] != null) {
+                        document.getElementById("out_training").play();
+                        $.messager.alert({
+                            title: 'failed',
+                            msg: "此司機教育訓練已過期，上次訓練時期為" + data1[0]["TrainingDate"]
+                        });
+                        $('#VAM_NO').textbox('clear').textbox('textbox').focus();
+                        return (false);
+                    }
+                    else if (educationProp == true & data1[0]["TrainingDrive"] == null) {
+
+                        $.messager.alert({
+                            title: 'failed',
+                            msg: "司機無教育訓練資料"
+                        });
+                        $('#VAM_NO').textbox('clear').textbox('textbox').focus();
+                        document.getElementById("no_training").play();
+                        return (false);
+                    }
+                    else if (healthProp == true & (data1[0]["bloodpressure"] == null || data1[0]["Alcohol"] == null)) {
+                        document.getElementById("error").play();
+                        $.messager.alert({
+                            title: 'failed',
+                            msg: "健康檢查無資料或未通過標準"
+                        });
+                        $('#VAM_NO').textbox('clear').textbox('textbox').focus();
+                        return (false);
+                    }
+                     
+                        //document.getElementById("correct").play();
+                    else {                        
+                        temp_FLAG = data1[0]["TB_FLAG"];
+                       
+                        if (temp_FLAG == null) { //進廠                            
+                            $('#CAR_NO').combogrid('setValue', data1[0]["CAR_NO"]);
+                            $('#PROD_ID').combobox('setValue', data1[0]["PROD_ID"]);
+                            $('#CUST_ID').combobox('setValue', data1[0]["CUST_ID"]);
+                            $('#TANK_NUM').combobox('setValue', data1[0]["TANK_NUM"]);
+                            $('#APPROVER').textbox('setValue', data1[0]["DRIVER"]);                            
+                            $('#OTH_WT').textbox('setValue', data1[0]["Max_WT"]);
+                            $('#PRN_TIMES').combogrid('setValue', data1[0]["PRN_TIMES"]);
+                            $('#IN_DATE').val(null);                           
+                            $('#IN_WEIGHT').textbox('setValue', null);
+                            $('#OUT_WEIGHT').textbox('setValue', null);
+                            $('#NET_WEIGHT').textbox('setValue', null);
+                            $('#TB_TYPE').combobox('setValue', parseInt(data1[0]["TB_TYPE"]));
+                            $('#button1').linkbutton().show();
+                            $('#button2').hide(true);
+
+                            if (data1[0]["CAR_NO"] == null || data1[0]["PROD_ID"] == null || data1[0]["CUST_ID"] == null
+                                || (data1[0]["TB_TYPE"] == null) || (data1[0]["TANK_NUM"] == null & data1[0]["TB_TYPE"]!="3"))
+                            {                                
+                                document.getElementById("error").play();
+                                $.messager.alert({
+                                    title: 'failed',
+                                    msg: "重要欄位值有缺漏，請通知工作人員補上"
+                                });                                
+                                return (false);
+
+                            }
+                            else {                                
+                                vam_no = $('#VAM_NO').val();                               
+                                $('#IN_WEIGHT').textbox('setValue', $('#show1').text());
+                                if (optionValue == 9||habor=='28')//手動選項
+                                {
+                                    return (false);
+                                }                                                               
+                                formSubmitCreate();
+
+                            }
+
+
+                        }
+                        else if (temp_FLAG == "1" || temp_FLAG == 1) { //出廠
+                                if (optionValue == 0)//五分內不可自動模式刷出廠
+                                {
+                                    var time1 = data1[0]["IN_DATE"];                                    
+                                    var now = new Date();
+                                    var RightNow = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() - 5);
+                                    if (((Date.parse(RightNow)).valueOf() <= (Date.parse(time1)).valueOf()))
+                                    {
+                                        $('#VAM_NO').textbox('clear').textbox('textbox').focus();
+                                        return false;
+                                    }
+                                                                       
+                                }
+                                
+                                if (data1[0]["Max_WT"] != null)
+                                {
+                                    UpWeightVal = data1[0]["Max_WT"];
+                                }                                
+                                $('#CAR_NO').textbox('setValue', data1[0]["CAR_NO"]);
+                                $('#TB_TYPE').combobox('setValue', data1[0]["TB_TYPE"]);
+                                $('#IN_DATE').val(data1[0]["IN_DATE"]);
+                                $('#OUT_DATE').val(null);
+                                $('#IN_WEIGHT').textbox('setValue', data1[0]["IN_WEIGHT"]);
+                                $('#TANK_NUM').combobox('setValue', data1[0]["TANK_NUM"]);
+                                $('#PROD_ID').combobox('setValue', data1[0]["PROD_ID"]);
+                                $('#CUST_ID').combobox('setValue', data1[0]["CUST_ID"]);
+                                $('#APPROVER').textbox('setValue', data1[0]["DRIVER"]);                               
+                                $('#PRN_TIMES').textbox('setValue', data1[0]["PRN_TIMES"]);
+                                $('#CAB_NO').textbox('setValue', data1[0]["DRIVER_ID"]);
+
+                                UKEY = data1[0]["UKEY"];
+                                vam_no = $('#VAM_NO').val();
+                                $('#button1').hide(true);
+                                $('#button2').linkbutton().show();
+                                $('#OUT_WEIGHT').textbox('setValue', $('#show1').text());
+                                if (optionValue == 9||habor=='28')//自動或手動選項
+                                {
+                                    return (false);
+                                }
+                                else {                                    
+                                    formSubmitEdit();
+                                }                                                 
+                        }
+
+
+                        else {
+                            document.getElementById("error").play();
+                            alert('有誤')
+                            return (false);
+                        }
+                    }
+                });
+            }
+        });
+        $(function () {
+            $('*[name=IN_DATE]').appendDtpicker({
+                "inline": false,
+                "locale": "cn",
+                "autodateOnStart": false
+            });
+        });
+        $(function () {
+            $('*[name=OUT_DATE]').appendDtpicker({
+                "inline": false,
+                "locale": "cn",
+                "autodateOnStart": false
+            });
+        });
+
+
+        $("input:radio[name=auto]").click(function () {
+            optionValue = $(this).val();
+
+            if (optionValue == 9) {
+                $('input[name="auto"]')[1].checked = false;
+                $('input[name="auto"]')[0].checked = true;
+                optionValue = 0;//先為零，驗證沒過的話就不影響
+                $('#Auth').show().dialog('open').dialog('center').dialog('setTitle', '身份認證');
+                $('#pps_code').textbox('clear').textbox('textbox').focus();
+                $("#IN_DATE").prop("disabled", false);
+                $("#OUT_DATE").prop("disabled", false);
+                //$('input[name="auto"]')[1].checked = true;//測試用
+                //$('input[name="auto"]')[0].checked = false;
+                //$('#IN_WEIGHT').textbox('readonly', false);
+                //$('#OUT_WEIGHT').textbox('readonly', false);
+                //$('#Auth').dialog('close');
+                                                             
+            }
+            if(optionValue==0) {                
+                $('#IN_DATE').prop("disabled", true);
+                $('#OUT_DATE').prop("disabled", true);
+                $('#IN_WEIGHT').textbox('readonly', true);
+                $('#OUT_WEIGHT').textbox('readonly', true);
+                PPS_code = null;
+            }
+            console.log(PPS_code);
+            console.log(optionValue);
+        });
+
+        $("input:checkbox[id=audio]").click(function () {
+            vaudioProp = $(this).prop("checked");
+            console.log(vaudioProp);
+        });
+        $("input:checkbox[id=education]").click(function () {
+            educationProp = $(this).prop("checked");
+            if (educationProp == true)
+            {
+                $("#education_show").prop('checked', true);
+            }
+            else
+            {
+                $("#education_show").prop('checked', false);
+            }
+            
+            console.log(educationProp);
+        });
+        $("input:checkbox[id=health]").click(function () {
+            healthProp = $(this).prop("checked");
+            if (healthProp == true)
+                {
+                $("#health_show").prop('checked', true);
+            }
+            else
+            {
+                $("#health_show").prop('checked', false);
+            }
+            console.log(healthProp);
+        });
+        $("input:checkbox[id=carTimes]").click(function () {
+            carTimesProp = $(this).prop("checked");
+            console.log(carTimesProp);
+        }); 
+        $("input:checkbox[id=printer]").click(function () {
+            printerProp = $(this).prop("checked");
+            console.log(printerProp);
+        });
+
+        $('#UpWeight').textbox({
+            onChange: function (value) {
+                UpWeightVal = value;
+            }
+        });
+        $('#DownWeight').textbox({
+            onChange: function (value) {
+                console.log('The value has been changed to ' + value);
+                DownWeightVal = value;
+            }
+        });
+
+        $('#OUT_WEIGHT').textbox({
+            onChange: function (value) {
+
+                // console.log('The value has been changed to ' + value);
+                var diff = parseFloat($('#OUT_WEIGHT').val()) - parseFloat($('#IN_WEIGHT').val());
+                $('#NET_WEIGHT').textbox('setValue', Math.abs(diff));
+            }
+        });
+        
+               
+        $(function () {
+            $('#btnPrintI').bind('click', function () {
+                if (vam_no != null)
+                {  
+                    Setfunction('ERPCall=FIQueryProcess_BENWANG;VAM_NO=' + vam_no + ';formkind=1');
+                    setTimeout("Setfunction('Default')", 3000);
+                  //  setTimeout('AutoFocus2()', 5000);
+                }
+            });
+        });
+        function PrintI() {
+            var row = $('#dg2').datagrid('getSelected');
+            if (row) {
+                Setfunction('ERPCall=FIQueryProcess_BENWANG;VAM_NO=' + row.VAM_NO + ';formkind=1');
+                setTimeout("Setfunction('Default')", 3000);
+                //setTimeout('AutoFocus2()', 5000);
+                
+            }
+        };
+        $(function () {
+            $('#btnPrintO').bind('click', function () {
+                if (UKEY2 != null)
+                {
+                    //Setfunction('ERPCall=FIQueryProcess_BENWANG;UKEY=' + UKEY2 + ';formkind=1');
+                    //setTimeout("Setfunction('Default')", 3000);
+                    if (habor == '28')
+                    {
+                        Setfunction('ERPCall=FIQueryProcess_BENWANG;UKEY=' + UKEY2 + ';formkind=1');
+                        setTimeout("Setfunction('Default')", 3000);
+                   }
+                    else if(habor=='56')
+                    {
+                        Setfunction('ERPCall=FIQueryProcess_BENWANG;UKEY56=' + UKEY2 + ';formkind=1');
+                        setTimeout("Setfunction('Default')", 3000);
+                    }
+                }
+            });
+        });
+        function PrintO() {
+            var row = $('#dg2').datagrid('getSelected');
+            if (row) {
+                if (habor == '28') {
+                    Setfunction('ERPCall=FIQueryProcess_BENWANG;UKEY=' + row.UKEY + ';formkind=1');
+                    setTimeout("Setfunction('Default')", 3000);
+                }
+                else if (habor == '56') {
+                    Setfunction('ERPCall=FIQueryProcess_BENWANG;UKEY56=' + row.UKEY + ';formkind=1');
+                    setTimeout("Setfunction('Default')", 3000);
+                }
+                //Setfunction('ERPCall=FIQueryProcess_BENWANG;UKEY=' + row.UKEY + ';formkind=1');
+                //setTimeout("Setfunction('Default')", 3000);
+             
+
+            }
+        };
+        $(function () {
+            $('#CAR_NO').combogrid({
+                panelWidth: 350,
+                url: 'get_Car_No',                
+                textField: 'CAR_NO',
+                idField: 'VAM_NO',
+                mode: 'remote',
+                fitColumns: true,
+                columns: [[
+                    { field: 'CAR_NO', title: '車號', width: 50 },
+                    { field: 'VAM_NO', title: '卡號', width: 50 },
+                    { field: 'PRD_NAME', title: '品名', width:50 },
+                    { field: 'DRIVER', title: '司機', width: 40 },
+                    { field: 'CUST_NAME', title: '客戶名稱', width: 60 }
+                ]],
+                onSelect: function (Row,index) {
+                    var grid = $('#CAR_NO').combogrid('grid');                    
+                    var rowCAR = grid.datagrid('getSelected');
+                    if (rowCAR)
+                    {
+                        $('#VAM_NO').textbox('setValue', rowCAR.VAM_NO);
+                        $('#CAR_NO').combogrid('setValue', rowCAR.CAR_NO);
+                        
+                    }
+                    
+                }
+
+
+            });
+        });
+
+
+        $(function () {
+            $('#PROD_ID').combogrid({
+                panelWidth: 300,
+                url: 'get_PRD_NAME',
+                idField: 'id',
+                textField: 'id',
+                mode: 'remote',
+                fitColumns: true,
+                columns: [[
+                    { field: 'id', title: '產品簡碼', width: 60 },
+                    { field: 'text', title: '產品名稱', width: 80 }
+                ]],
+                onChange: function (value) {
+                    $.ajax({
+                        url: 'PROD_Name',
+                        data: { PROD_ID: value },
+                        method: "POST",
+
+                    }).done(function (result) {
+
+                        $('#PROD_NAME').textbox('setValue', result[0]);
+                    })                    
+                }
+
+            });
+        });
+        $(function () {
+            $('#CUST_ID').combogrid({
+                panelWidth: 300,
+                url: 'get_Cust_Name',
+                idField: 'id',
+                textField: 'id',
+                mode: 'remote',
+                fitColumns: true,
+                columns: [[
+                    { field: 'id', title: '客戶簡碼', width: 60 },
+                    { field: 'text', title: '客戶名稱', width: 80 }
+                ]],
+                onChange: function (value) {
+                    $.ajax({
+                        url: 'Cust_Name',
+                        data: { CUST_ID: value },
+                        method: "POST",
+
+                    }).done(function (result) {
+
+                        $('#CUST_NAME').textbox('setValue', result[0]);
+                    })
+                }
+
+            });
+        });
+        $(function () {
+            $('#PRN_TIMES').combogrid({
+                panelWidth: 300,
+                url: 'get_prn_times',
+                idField: 'id',
+                textField: 'id',
+                mode: 'remote',
+                fitColumns: true,
+                columns: [[
+                    { field: 'id', title: '車行簡碼', width: 60 },
+                    { field: 'text', title: '車行名稱', width: 80 }
+                ]], 
+
+            });
+        });
+        
+        
+        $('#id_Num').textbox({
+                            inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+                                    keypress: function (e) {
+                                    if (e.keyCode == 13) {
+                                            AuthSend();
+                                        }
+                                }
+                        })
+                    });
+       
+        function getTankNum() {
+            $(function () {
+                $('#TANK_NUM').combogrid({
+                    panelWidth: 300,
+                    url: 'get_TANK_NUM?habor=' + habor,
+                    idField: 'id',
+                    textField: 'id',
+                    mode: 'remote',
+                    fitColumns: true,
+                    columns: [[
+                        { field: 'id', title: '槽號', width: 60 },
+                        //{ field: 'text', title: '品名', width: 80 }
+                    ]],
+
+                });
+            });
+
+        }
+                   
+        function getDatagrid() {
+           
+            $('#dg').datagrid({
+                singleSelect: true,
+                url: 'Car_In?Pier='+habor,             
+                rownumbers: true,
+                columns: [[
+                    { field: 'CAR_NO', title: '車號' ,width:70},
+                    { field: 'VAM_NO', title: '卡號', width:65},
+                    { field: 'IN_DATE', title: '進場時間', width:125 },
+                    { field: 'UKEY', title: '編號', width:125  },
+                ]],               
+                onLoadSuccess: function (data) {                 
+                    $('#car_number').text(data['total']);
+                },
+                onDblClickRow: function () {
+                    var row = $('#dg').datagrid('getSelected');
+                    if (row) {
+                        if (row.VAM_NO == null)
+                        {
+                            $.ajax({
+                                type: "POST",
+                                url: 'NoCardSearch',
+                                data: {UKEY:row.UKEY}
+                            }).done(function (result) {
+                                $('#CAR_NO').textbox('setValue', result[0]["CAR_NO"]);
+                                $('#TB_TYPE').combobox('setValue', result[0]["TB_TYPE"]);
+                                $('#IN_DATE').val(result[0]["IN_DATE"]);
+                                $('#OUT_DATE').val(null);
+                                $('#IN_WEIGHT').textbox('setValue', result[0]["IN_WEIGHT"]);
+                                $('#TANK_NUM').combobox('setValue', result[0]["TANK_NUM"]);
+                                $('#PROD_ID').combobox('setValue', result[0]["PROD_ID"]);
+                                $('#CUST_ID').combobox('setValue', result[0]["CUST_ID"]);
+                                $('#APPROVER').textbox('setValue', result[0]["DRIVER"]);
+                                $('#PRN_TIMES').textbox('setValue', result[0]["PRN_TIMES"]);
+
+                                UKEY = result[0]["UKEY"];
+                                vam_no = $('#VAM_NO').val();
+                                $('#button1').hide(true);
+                                $('#button2').linkbutton().show();
+                                $('#OUT_WEIGHT').textbox('setValue', $('#show1').text());
+                            });
+                        }
+                        $('#VAM_NO').textbox('setValue', row.VAM_NO);
+                    }
+                    
+                },
+                loadMsg:'讀取中'
+            });
+        $('#dg2').datagrid({                
+                singleSelect: true,
+                url: 'CompleteCar?Pier='+habor,
+                width: '100%',
+                height: '700',
+                rownumbers: true,                
+                columns: [[              
+                    { field: 'CAR_NO', title: '車號' },
+                    { field: 'VAM_NO', title: '卡號' },
+                    { field: 'APPROVER', title: '司機' },
+                    { field: 'CO_NAME', title: '貨運公司' },
+                    { field: 'IN_DATE', title: '進場時間' },
+                    { field: 'OUT_DATE', title: '離場時間' },
+                    { field: 'PROD_ID', title: '品名' },
+                    { field: 'CUST_ID', title: '客戶名稱' },
+                    { field: 'TB_TYPE', title: '作業方式' },
+                    { field: 'TANK_NUM', title: '倉庫槽號' },
+                    { field: 'IN_WEIGHT', title: '第一磅' },
+                    { field: 'OUT_WEIGHT', title: '第二磅' },
+                    { field: 'NET_WEIGHT', title: '淨重' },
+                    { field: 'UKEY', title: '編號' },
+                ]],
+                pagination: true,
+                pagePosition: 'bottom',
+                pageSize: 30,
+                onLoadSuccess: function (data) {        
+                    $('#CompButton').linkbutton({
+                        text: '今日完成: ' + data['total'] + ' 車次'
+
+                    })
+                },              
+                loadMsg: '讀取中'
+        });       
+            var pager = $('#dg2').datagrid('getPager');
+            $(pager).pagination({
+                pageSize: 30,
+                showPageList: true,
+                pageList: [30,50,70],
+                beforePageText: '第',
+                afterPageText: '頁,共{pages}頁',
+                displayMsg: '顯示{from}到{to}筆資料,共{total}筆資料'
+
+            });
+
+        }
+
+
+
+        function formSubmitCreate() {
+            $('#button1').linkbutton('disable');
+            $("#ff").submit(function (create) {
+            var create_url = '@Url.Action("create", "Default")';
+            $('#USER1').textbox('setValue', PPS_code);
+            $('#DIVISION').textbox('setValue', habor);
+            $('#IN_TB_ID').textbox('setValue', parseInt(optionValue));
+            $.ajax({
+                type: "POST",
+                url: create_url,
+                data: $("#ff").serialize()               
+            }).done(function (result) {
+
+                if (result == "ok") {
+                    $.messager.show({
+                        title: 'SUCCEED',
+                        msg: "存檔成功"
+
+                    });                    
+                  //  chat.server.intime1();                
+                    getDatagrid();
+                    document.getElementById("correct").play();                  
+                    formreset();
+                    if(printerProp==true){
+                        Setfunction('ERPCall=FIQueryProcess_BENWANG;VAM_NO=' + vam_no + ';formkind=1');
+                        setTimeout("Setfunction('Default')", 3500);
+                        if (optionValue == 0 & habor=='56')
+                        {
+                          setTimeout('AutoFocus2()', 7000);
+                        }
+                    }
+                    
+                    $('#VAM_NO').textbox('clear').textbox('textbox').focus();
+
+                }
+                else {
+                    document.getElementById("error").play();
+                    $.messager.alert({
+                        title: 'failed',
+                        msg: result
+                    });
+                }
+                $('#button1').linkbutton('enable');
+            })
+             .fail(function() {
+                 alert('資料回傳失敗，有可能是網路問題，請檢查網路，或使用備援網路');
+                 $('#button1').linkbutton('enable');
+                })
+            
+            create.preventDefault();// avoid to execute the actual submit of the form.
+        });
+        $("#ff").submit();
+        $("#ff").unbind();        
+    }
+
+    function formSubmitEdit() {
+        $('#button2').linkbutton('disable');
+        $("#ff").submit(function (edit) {
+            $('#UKEY_edit').textbox('setValue', UKEY);
+            $('#USER2').textbox('setValue', PPS_code);
+            $('#OUT_TB_ID').textbox('setValue', optionValue);
+            var editsave_url = '@Url.Action("editsave", "Default")';            
+            if ($('#OUT_WEIGHT').val() > UpWeightVal) {
+                document.getElementById("error").play();
+                alert('超過總重限制!限制為' + UpWeightVal);
+                $('#button2').linkbutton('enable');
+                return (false);
+            }
+            else if ($('#OUT_WEIGHT').val() != 0 & $('#OUT_WEIGHT').val() != null & $('#OUT_WEIGHT').val() < DownWeightVal) {
+                document.getElementById("error").play();
+                alert('小於載重下限!');
+                $('#button2').linkbutton('enable');
+                return (false);
+            }
+            $.ajax({
+                type: "POST",
+                url: editsave_url,
+                data: $("#ff").serialize()// serializes the form's elements.
+
+            }).done(function (result) {
+
+                if (result == "ok") {
+                    $.messager.show({
+                        title: 'SUCCEED',
+                        msg: "存檔成功"
+
+                    });
+                    document.getElementById("correct_out").play();
+                    vam_no_temp = $('#VAM_NO').val();
+                    var now = new Date();                                    
+                    OutTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes());                    
+                     UKEY2 = UKEY;
+                  //  chat.server.intime1();
+                    getDatagrid();
+                    formreset();
+                    if (printerProp == true)
+                    {
+                        if (habor == '28') {
+                            Setfunction('ERPCall=FIQueryProcess_BENWANG;UKEY=' + UKEY + ';formkind=1');
+                            setTimeout("Setfunction('Default')", 3000);
+                        }
+                        else if (habor == '56') {
+                            Setfunction('ERPCall=FIQueryProcess_BENWANG;UKEY56=' + UKEY + ';formkind=1');
+                            setTimeout("Setfunction('Default')", 3000);
+                            if (optionValue == 0)
+                            {
+                                setTimeout('AutoFocus2()', 7000);
+                            }
+                        }
+                        //Setfunction('ERPCall=FIQueryProcess_BENWANG;UKEY=' + UKEY + ';formkind=1');
+                        //setTimeout("Setfunction('Default')", 3500);
+                        
+                    }
+
+                    $('#button2').hide(true);
+                    $('#button1').linkbutton().show();
+                    $('#VAM_NO').textbox('clear').textbox('textbox').focus();
+
+
+                }
+                else {
+                    document.getElementById("error").play();
+                    $.messager.alert({
+                        title: 'failed',
+                        msg: result
+                    });
+                }                
+                $('#button2').linkbutton('enable');
+            })
+            .fail(function() {
+                alert('資料回傳失敗，有可能是網路問題，請檢查網路，或使用備援網路');
+                $('#button2').linkbutton('enable');
+            })
+
+            edit.preventDefault();// avoid to execute the actual submit of the form.
+        });
+        $("#ff").submit();
+        $("#ff").unbind();
+    }
+
+
+    </script>
+</body>
+
+</html>
